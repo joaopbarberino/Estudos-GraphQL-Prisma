@@ -1,5 +1,5 @@
 # source: http://localhost:4466
-# timestamp: Fri Jul 26 2019 17:06:01 GMT-0300 (Brasilia Standard Time)
+# timestamp: Mon Aug 19 2019 14:08:27 GMT-0300 (-03)
 
 type AggregateComment {
   count: Int!
@@ -336,7 +336,7 @@ type Post implements Node {
   id: ID!
   title: String!
   body: String!
-  published: Boolean
+  published: Boolean!
   author(where: UserWhereInput): User!
   comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Comment!]
 }
@@ -354,7 +354,7 @@ type PostConnection {
 input PostCreateInput {
   title: String!
   body: String!
-  published: Boolean
+  published: Boolean!
   author: UserCreateOneWithoutPostsInput!
   comments: CommentCreateManyWithoutPostInput
 }
@@ -372,14 +372,14 @@ input PostCreateOneWithoutCommentsInput {
 input PostCreateWithoutAuthorInput {
   title: String!
   body: String!
-  published: Boolean
+  published: Boolean!
   comments: CommentCreateManyWithoutPostInput
 }
 
 input PostCreateWithoutCommentsInput {
   title: String!
   body: String!
-  published: Boolean
+  published: Boolean!
   author: UserCreateOneWithoutPostsInput!
 }
 
@@ -411,7 +411,7 @@ type PostPreviousValues {
   id: ID!
   title: String!
   body: String!
-  published: Boolean
+  published: Boolean!
 }
 
 type PostSubscriptionPayload {

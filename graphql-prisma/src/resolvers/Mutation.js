@@ -1,85 +1,41 @@
 import uuidv4 from 'uuid/v4';
 
 const Mutation = {
-    createUser(parent, args, { db }, info) {
-        const emailTaken = db.users.some((user) => user.email === args.data.email);
+    async createUser(parent, args, { PRISMA }, info) {
+        const emailTaken = await PRISMA.exists.User({ email: args.data.email });
 
         if (emailTaken) throw new Error('Email already in use.');
 
-        const user = {
-            id: uuidv4(),
-            ...args.data
-        };
-
-        db.users.push(user);
-
-        return user;
+        return await PRISMA.mutation.createUser({ data: args.data }, info);
     },
 
-    deleteUser(parent, args, { db }, info) {
-        const userIndex = db.users.findIndex((user) => user.id === args.id);
-        if (userIndex === -1) throw new Error('User does not exists.');
-
-        const deletedUsers = db.users.splice(userIndex, 1);
-
-        db.posts = db.posts.filter((post) => {
-            const match = post.author === args.id;
-            if (match) {
-                db.comments = db.comments.filter((comment) => comment.post !== post.id)
-            }
-            return !match;
-        });
-        db.comments = db.comments.filter((comment) => comment.author !== args.id)
-        return deletedUsers[0];
-    },
-
-    updateUser(parent, args, ctx, info) {
-        const { id, data } = args;
-        const { db } = ctx;
-
-        const user = db.users.find((user) => user.id === id);
-
-        if (!user) throw new Error('User does not exists.');
-
-        if (typeof data.email === 'string') {
-            const emailTaken = db.users.some((user) => user.email === data.email);
-
-            if (emailTaken) throw new Error('This email is already in use.');
-
-            user.email = data.email;
-        }
-
-        if (typeof data.name === 'string') {
-            user.name = data.name;
-        }
-
-        if (typeof data.age !== 'undefined') {
-            user.age = data.age;
-        }
-
-        return user;
-    },
-
-    createPost(parent, args, { db, pubsub }, info) {
-        const userExists = db.users.some((user) => user.id === args.post.author);
+    async deleteUser(parent, args, { PRISMA }, info) {
+        const userExists = await PRISMA.exists.User({ id: args.id });
 
         if (!userExists) throw new Error('User does not exists.');
 
-        const post = {
-            id: uuidv4(),
-            ...args.post
-        };
-
-        db.posts.push(post);
-
-        post.published ? pubsub.publish('post', {
-            post: {
-                mutation: 'CREATED',
-                data: post
+        return PRISMA.mutation.deleteUser({
+            where: {
+                id: args.id
             }
-        }) : '';
+        }, info);
+    },
 
-        return post;
+    async updateUser(parent, { id, data }, { PRISMA }, info) {
+        return await PRISMA.mutation.updateUser({ where: { id }, data }, info);
+    },
+
+    async createPost(parent, args, { PRISMA }, info) {
+        return PRISMA.mutation.createPost({
+            data: {
+                ...args.data,
+                author: {
+                    connect: {
+                        id: args.data.author
+                    }
+                }
+            }
+        }, info);
     },
 
     deletePost(parent, args, { db, pubsub }, info) {

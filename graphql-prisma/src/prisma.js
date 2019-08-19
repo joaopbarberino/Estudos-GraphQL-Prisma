@@ -6,27 +6,29 @@ const PRISMA = new Prisma({
     endpoint: 'http://localhost:4466',
 });
 
+export default PRISMA;
+
 // 1. Create a new post
 // 2. Fetch all of the info the user (author)
-const createPostForUser = async (authorId, data) => {
-    const userExists = await PRISMA.exists.User({ id: authorId });
+// const createPostForUser = async (authorId, data) => {
+//     const userExists = await PRISMA.exists.User({ id: authorId });
     
-    if (!userExists) throw new Error('User not found!');
-    // 1.
-    const post = await PRISMA.mutation.createPost({
-        data: {
-            ...data,
-            author: {
-                connect: {
-                    id: authorId
-                }
-            }
-        }
-        // 2.
-    }, '{ id author { id name posts { id title published } } }');
+//     if (!userExists) throw new Error('User not found!');
+//     // 1.
+//     const post = await PRISMA.mutation.createPost({
+//         data: {
+//             ...data,
+//             author: {
+//                 connect: {
+//                     id: authorId
+//                 }
+//             }
+//         }
+//         // 2.
+//     }, '{ id author { id name posts { id title published } } }');
     
-    return post.author;
-}
+//     return post.author;
+// }
 
 // createPostForUser('cjykgb3gb000b0803agt3uxa2', {
 //     title: 'HQs super boas',
@@ -40,23 +42,23 @@ const createPostForUser = async (authorId, data) => {
 
 // 1. Update a post and get the author id back
 // 2. Fetch the user associated with the post and return it's data
-const updatePostForUser = async (postId, data) => {
-    const postExists = await PRISMA.exists.Post({ id: postId });
+// const updatePostForUser = async (postId, data) => {
+//     const postExists = await PRISMA.exists.Post({ id: postId });
     
-    if(!postExists) throw new Error('Post not found');
-    // 1.
-    const post = await PRISMA.mutation.updatePost({
-        where: {
-            id: postId
-        },
-        data: {
-            ...data,
-        }
-        // 2.
-    }, '{ id author { name email posts { id title published } } }');
+//     if(!postExists) throw new Error('Post not found');
+//     // 1.
+//     const post = await PRISMA.mutation.updatePost({
+//         where: {
+//             id: postId
+//         },
+//         data: {
+//             ...data,
+//         }
+//         // 2.
+//     }, '{ id author { name email posts { id title published } } }');
     
-    return post.author;
-}
+//     return post.author;
+// }
 
 // updatePostForUser('cjz462kkn00gc0903nunasub5', {
 //     title: 'Filmes incrivelmente bons',

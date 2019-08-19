@@ -1,27 +1,40 @@
 const Query = {
-    greeting(parent, args, ctx, info) {
-        return args.name ? `Hello ${args.name}!` : `Hello world!`
+    users(parent, args, { PRISMA }, info) {
+        const operationalArgs = {};
+        if (args.query) {
+            operationalArgs.where = {
+                OR: [{
+                    name_contains: args.query
+                }, {
+                    email_contains: args.query
+                }]
+            }
+        }
+        return PRISMA.query.users(operationalArgs, info);
     },
 
-    users(parent, args, { db }, info) {
-        if (!args.query) return db.users;
-        return db.users.filter((user) => {
-            return user.name.toLowerCase().includes(args.query.toLowerCase());
-        });
-
+    posts(parent, args, { PRISMA }, info) {
+        const operationalArgs = {};
+        if (args.query) {
+            operationalArgs.where = {
+                OR: [{
+                    title_contains: args.query
+                }, {
+                    body_contains: args.query
+                }]
+            }
+        }
+        return PRISMA.query.posts(operationalArgs, info);
     },
 
-    posts(parent, args, { db }, info) {
-        return args.query ?
-            db.posts.filter((post) => {
-                return post.title.toLowerCase().includes(args.query.toLowerCase()) ||
-                    post.body.toLowerCase().includes(args.query.toLowerCase())
-            }) :
-            db.posts;
-    },
-
-    comments(parent, args, { db }, info) {
-        return db.comments;
+    comments(parent, args, { PRISMA }, info) {
+        const operationalArgs = {};
+        if(args.query) {
+            operationalArgs.where = {
+                text_contains: args.query
+            }
+        }
+        return PRISMA.query.comments(operationalArgs, info);
     },
 
     grades(parent, args, ctx, info) {
